@@ -18,6 +18,7 @@ main = do
   let dayToRun = case args of
                   [] -> currentDay
                   [x] -> (read x) :: Int
+                  _ -> error "I don't understand the arguments"
   putStrLn $ "Running day " ++ (show dayToRun)
   case lookup dayToRun solvers of
     Nothing -> putStrLn $ "Day " ++ (show dayToRun) ++ " not supported"
