@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day2 (solve) where
+module Day02 (solve) where
 
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Text as T
