@@ -1,6 +1,7 @@
 module Main where
 
 import Day1
+import Day2
 import Data.Time.LocalTime (getZonedTime, zonedTimeToLocalTime, localDay)
 import Data.Time (utc, localTimeToUTC, addUTCTime, utcToLocalTime, toGregorian)
 import Data.Time.Clock (nominalDay)
@@ -9,7 +10,7 @@ import Data.Map.Strict (Map, fromList, lookup)
 import Prelude hiding (lookup)
 
 solvers :: Map Int (IO ())
-solvers = fromList [(1, Day1.solve)]
+solvers = fromList [(1, Day1.solve), (2, Day2.solve)]
 
 main :: IO ()
 main = do
