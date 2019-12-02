@@ -2,8 +2,7 @@ module Day01
   ( solve
   ) where
 
-readInt :: String -> Int
-readInt = read
+import Parsing (parseLines, parseInt, resultOrError)
 
 fuelPart1 :: Int -> Int
 fuelPart1 = (subtract 2) . (`div` 3)
@@ -18,8 +17,7 @@ fuelPart2 = fuelPart2' 0
 
 solve :: IO ()
 solve = do
-  input <- readFile "input/day01.txt"
-  let modules = map readInt (lines input)
+  modules <- resultOrError <$> parseLines parseInt <$> readFile "input/day01.txt"
   let part1 = map fuelPart1 modules
   putStrLn "Part 1:"
   print $ sum part1

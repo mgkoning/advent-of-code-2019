@@ -4,10 +4,7 @@ module Day02 (solve) where
 
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Text as T
-import Debug.Trace (traceShowId)
-
-readInt :: String -> Int
-readInt = read
+import Parsing (parseCommaSeparated, parseInt, resultOrError)
 
 runProgram state pointer =
   let current = state V.! pointer
@@ -28,11 +25,10 @@ findInput program ((a, b):inputs) desired =
 solve :: IO ()
 solve = do
   program <- V.fromList <$>
-    ((map (readInt . T.unpack)) . (T.split (\c -> c == ',')) . (T.pack)) <$>
-    readFile "input/day02.txt"
-
+             resultOrError <$> parseCommaSeparated parseInt <$>
+             readFile "input/day02.txt"
   let programPart1 = program V.// [(1, 12), (2, 2)]
-  let finalState = runProgram programPart1 0
+      finalState = runProgram programPart1 0
   putStrLn "Part 1:"
   print $ finalState V.! 0
 

@@ -21,6 +21,7 @@ dependencies:
 - containers
 - vector
 - text
+- parsec
 
 library:
   source-dirs: src
