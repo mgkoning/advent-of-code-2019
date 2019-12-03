@@ -53,7 +53,7 @@ pathWithStepCount path = fromListWith (\a b -> a) $ zip path [1..]
 manhattan (x, y) = abs x + abs y
 
 solve = do
-  (wire1:wire2:_) <- resultOrError <$> parseWires <$> readFile "input/day03.txt"
+  (wire1:wire2:_) <- resultOrError <$> parseWires <$> readFile "../input/day03.txt"
   putStrLn "Part 1:"
   let path1 = pathWithStepCount $ snd $ getFullPath wire1
       path2 = pathWithStepCount $ snd $ getFullPath wire2

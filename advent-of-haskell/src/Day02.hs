@@ -26,7 +26,7 @@ solve :: IO ()
 solve = do
   program <- V.fromList <$>
              resultOrError <$> parseCommaSeparated parseInt <$>
-             readFile "input/day02.txt"
+             readFile "../input/day02.txt"
   let programPart1 = program V.// [(1, 12), (2, 2)]
       finalState = runProgram programPart1 0
   putStrLn "Part 1:"

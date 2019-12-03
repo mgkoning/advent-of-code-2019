@@ -17,7 +17,7 @@ fuelPart2 = fuelPart2' 0
 
 solve :: IO ()
 solve = do
-  modules <- resultOrError <$> parseLines parseInt <$> readFile "input/day01.txt"
+  modules <- resultOrError <$> parseLines parseInt <$> readFile "../input/day01.txt"
   let part1 = map fuelPart1 modules
   putStrLn "Part 1:"
   print $ sum part1
