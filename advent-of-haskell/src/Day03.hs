@@ -4,7 +4,7 @@ import Text.Parsec (letter, sepEndBy, string)
 import Text.Parsec.String (Parser)
 import Parsing (parseLines, parseInt, resultOrError)
 import Prelude hiding (Left, Right)
-import Data.HashSet (fromList, toList, intersection)
+import Data.HashMap.Strict (HashMap, fromListWith, toList, intersectionWith)
 import Data.List (sort)
 
 data Direction = Left | Right | Up | Down deriving (Show, Eq)
@@ -45,15 +45,22 @@ getFullPath :: Path -> (Coord, [Coord])
 getFullPath turns = foldl addTurn ((0, 0), []) turns
   where addTurn (from, steps) turn =
           let (endCoord, steps') = getCoords from turn
-          in (endCoord, steps ++ steps')
+          in (endCoord, steps ++ (reverse steps'))
+
+pathWithStepCount :: [Coord] -> HashMap Coord Int
+pathWithStepCount path = fromListWith (\a b -> a) $ zip path [1..]
 
 manhattan (x, y) = abs x + abs y
 
 solve = do
   (wire1:wire2:_) <- resultOrError <$> parseWires <$> readFile "input/day03.txt"
   putStrLn "Part 1:"
-  let path1 = fromList $ snd $ getFullPath wire1
-      path2 = fromList $ snd $ getFullPath wire2
-      both = intersection path1 path2
-      distances = map manhattan $ toList both
+  let path1 = pathWithStepCount $ snd $ getFullPath wire1
+      path2 = pathWithStepCount $ snd $ getFullPath wire2
+      both = toList $ intersectionWith (+) path1 path2
+      (coords, stepSum) = unzip both
+      distances = map manhattan coords
   print $ head $ sort $ distances
+
+  putStrLn "Part 2:"
+  print $ head $ sort $ stepSum
