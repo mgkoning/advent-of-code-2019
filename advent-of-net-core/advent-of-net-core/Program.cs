@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 namespace AdventOfCode2019 {
 
   class Program {
-    static Dictionary<int, Func<Task>> solvers = new Dictionary<int, Func<Task>> {
-      [1] = async () => await new Day01().solve()
+    static Func<Task>[] solvers = new Func<Task>[] {
+      async () => await new Day01().solve(),
+      async () => await new Day02().solve()
     };
 
     static async Task Main(string[] args) {
       var dayToRun = 0 < args.Length ? int.Parse(args[0]) : DateTime.Now.AddHours(-6).Day;
-      if (!solvers.TryGetValue(dayToRun, out var solve)) {
+      var solve = solvers.TryGetValue(dayToRun - 1);
+      if (solve == null) {
         Console.Error.WriteLine($"Day {dayToRun} not supported.");
         Environment.Exit(1);
       }
@@ -19,5 +21,11 @@ namespace AdventOfCode2019 {
       await solve();
     }
 
+  }
+
+  static class Extensions {
+    public static T? TryGetValue<T>(this T[] array, int index) where T: class {
+      return 0 <= index && index < array.Length ? array[index] : null;
+    }
   }
 }

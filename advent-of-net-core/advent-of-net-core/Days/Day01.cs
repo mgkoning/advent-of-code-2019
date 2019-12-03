@@ -8,12 +8,10 @@ namespace AdventOfCode2019 {
   class Day01 {
 
     internal async Task solve() {
-      await File.ReadAllLinesAsync("../input/day01.txt")
-        .ContinueWith(async linesTask => { 
-          var (part1, part2) = runPuzzle(linesTask.Result.Select(int.Parse).ToList());
-          await Console.Out.WriteLineAsync($"Part 1:\n{part1}");
-          await Console.Out.WriteLineAsync($"Part 2:\n{part2}");
-        });
+      var lines = await File.ReadAllLinesAsync("../input/day01.txt");
+      var (part1, part2) = runPuzzle(lines.Select(int.Parse).ToList());
+      await Console.Out.WriteLineAsync($"Part 1:\n{part1}");
+      await Console.Out.WriteLineAsync($"Part 2:\n{part2}");
     }
 
     (int part1, int part2) runPuzzle(IEnumerable<int> modules) {
