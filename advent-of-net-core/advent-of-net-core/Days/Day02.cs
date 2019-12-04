@@ -9,7 +9,8 @@ namespace AdventOfCode2019 {
   class Day02 {
 
     internal async Task solve() {
-      var program = (await File.ReadAllTextAsync("../input/day02.txt")).Split(',').Select(int.Parse).ToList();
+      var program = (await File.ReadAllTextAsync("../input/day02.txt"))
+        .Split(',').Select(int.Parse).ToList();
       var state = runProgram(program, 12, 2);
       await Console.Out.WriteLineAsync($"Part 1:\n{state[0]}");
       var (verb, noun) = findInput(program, 19690720);
@@ -17,7 +18,7 @@ namespace AdventOfCode2019 {
       
     }
 
-    private (int verb, int noun) findInput(IList<int> program, int desiredAt0) {
+    (int verb, int noun) findInput(IList<int> program, int desiredAt0) {
       for(var verb = 0; verb < 100; verb++) {
         for(var noun = 0; noun < 100; noun++) {
           var state = runProgram(program, verb, noun);
@@ -27,7 +28,7 @@ namespace AdventOfCode2019 {
       throw new IndexOutOfRangeException();
     }
 
-    internal IList<int> runProgram(IList<int> program, int pos1, int pos2) {
+    IList<int> runProgram(IList<int> program, int pos1, int pos2) {
       var pointer = 0;
       program = program.ToList(); // make a copy
       (program[1], program[2]) = (pos1, pos2);
@@ -43,7 +44,7 @@ namespace AdventOfCode2019 {
       throw new IndexOutOfRangeException();
 
       bool binOp(Func<int, int, int> op) {
-        program[program[pointer + 3]] = op(program[program[pointer+1]], program[program[pointer+2]]);
+        program[program[pointer+3]] = op(program[program[pointer+1]], program[program[pointer+2]]);
         pointer += 4;
         return false;
       }
