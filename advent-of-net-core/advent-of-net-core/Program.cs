@@ -23,9 +23,4 @@ namespace AdventOfCode2019 {
 
   }
 
-  static class Extensions {
-    public static T? TryGetValue<T>(this T[] array, int index) where T: class {
-      return 0 <= index && index < array.Length ? array[index] : null;
-    }
-  }
 }
