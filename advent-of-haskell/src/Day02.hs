@@ -3,23 +3,12 @@
 module Day02 (solve) where
 
 import qualified Data.Vector.Unboxed as V
-import qualified Data.Text as T
+import Intcode (runSimple)
 import Parsing (parseCommaSeparated, parseInt, resultOrError)
-
-runProgram state pointer =
-  let current = state V.! pointer
-      lhs = state V.! (state V.! (pointer + 1))
-      rhs = state V.! (state V.! (pointer + 2))
-      outputPos = state V.! (pointer + 3)
-  in case current of
-      1 -> runProgram (state V.// [(outputPos, (lhs + rhs))]) (pointer + 4)
-      2 -> runProgram (state V.// [(outputPos, (lhs * rhs))]) (pointer + 4)
-      99 -> state
-      x -> error ("unknown opcode " ++ (show x))
 
 findInput _ [] _ = error "no input found"
 findInput program ((a, b):inputs) desired =
-  let finalState = runProgram (program V.// [(1, a), (2, b)]) 0
+  let finalState = runSimple (program V.// [(1, a), (2, b)])
   in if finalState V.! 0 == desired then (a, b) else findInput program inputs desired
 
 solve :: IO ()
@@ -28,7 +17,7 @@ solve = do
              resultOrError <$> parseCommaSeparated parseInt <$>
              readFile "../input/day02.txt"
   let programPart1 = program V.// [(1, 12), (2, 2)]
-      finalState = runProgram programPart1 0
+      finalState = runSimple programPart1
   putStrLn "Part 1:"
   print $ finalState V.! 0
 
