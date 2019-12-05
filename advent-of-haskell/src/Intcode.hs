@@ -25,6 +25,10 @@ runProgram state@(State {..}) pointer =
       1 -> runProgram state { program = (program V.// [(arg3, (arg1 + arg2))]) } (pointer + 4)
       2 -> runProgram state { program = (program V.// [(arg3, (arg1 * arg2))]) } (pointer + 4)
       3 -> runProgram (State input' (program V.// [(arg3, headInput)]) output) (pointer + 2)
-      4 -> runProgram state { output = arg3:output } (pointer + 2)
+      4 -> runProgram state { output = arg1:output } (pointer + 2)
+      5 -> runProgram state (if arg1 /= 0 then arg2 else pointer + 3)
+      6 -> runProgram state (if arg1 == 0 then arg2 else pointer + 3)
+      7 -> runProgram state { program = (program V.// [(arg3, if arg1 < arg2 then 1 else 0)]) } (pointer + 4)
+      8 -> runProgram state { program = (program V.// [(arg3, if arg1 == arg2 then 1 else 0)]) } (pointer + 4)
       99 -> state
       x -> error ("unknown opcode " ++ (show x))

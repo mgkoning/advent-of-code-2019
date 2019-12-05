@@ -13,3 +13,6 @@ solve = do
   let State{..} = runProgram (State [1] inputProgram []) 0
   putStrLn "Part 1:"
   print output
+  let State{..} = runProgram (State [5] inputProgram []) 0
+  putStrLn "Part 2:"
+  print output
