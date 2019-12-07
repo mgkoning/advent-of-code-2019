@@ -1,12 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Intcode (
+  readProgram,
   runSimple,
   Program, Input, Output, runProgram,
   IntermediateState(..), Suspended(..), runWithSuspend
 ) where
 
 import qualified Data.Vector.Unboxed as V
+import Parsing (parseCommaSeparated, parseInt, resultOrError)
 
 type Program = V.Vector Int
 type Input = [Int]
@@ -17,6 +19,9 @@ newtype IntermediateState = IntermediateState { istate :: Either Suspended Outpu
 
 data Mode = Running | WaitingForInput | Halted deriving (Eq, Show)
 data State = State { input :: Input, program :: Program, mode :: Mode, ip :: Int, output :: Output }
+
+readProgram :: String -> Program
+readProgram = V.fromList . resultOrError . (parseCommaSeparated parseInt)
 
 runSimple :: Program -> Program
 runSimple program = if mode == Halted then finalProgram else error ("Did not run until halted, mode: " ++ show mode)

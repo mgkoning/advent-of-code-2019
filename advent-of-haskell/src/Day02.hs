@@ -1,10 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Day02 (solve) where
 
 import qualified Data.Vector.Unboxed as V
-import Intcode (runSimple)
-import Parsing (parseCommaSeparated, parseInt, resultOrError)
+import Intcode (readProgram, runSimple)
 
 findInput _ [] _ = error "no input found"
 findInput program ((a, b):inputs) desired =
@@ -13,9 +10,7 @@ findInput program ((a, b):inputs) desired =
 
 solve :: IO ()
 solve = do
-  program <- V.fromList <$>
-             resultOrError <$> parseCommaSeparated parseInt <$>
-             readFile "../input/day02.txt"
+  program <- readProgram <$> readFile "../input/day02.txt"
   let programPart1 = program V.// [(1, 12), (2, 2)]
       finalState = runSimple programPart1
   putStrLn "Part 1:"

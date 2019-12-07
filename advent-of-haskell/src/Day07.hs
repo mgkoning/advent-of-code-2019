@@ -1,8 +1,7 @@
 module Day07 (solve) where
 
 import qualified Data.Vector.Unboxed as V
-import Intcode (runProgram, Input, IntermediateState(..), Suspended(..), runWithSuspend)
-import Parsing (parseCommaSeparated, parseInt, resultOrError)
+import Intcode (readProgram, runProgram, Input, IntermediateState(..), Suspended(..), runWithSuspend)
 import Data.List (permutations, maximum)
 import Data.Either (fromLeft, fromRight, isRight)
 
@@ -26,26 +25,24 @@ runFeedbackPermutations program =
   in maximum outputs
 
 runFeedbackAmplifier program phases =
-  let phaseA:phaseB:phaseC:phaseD:phaseE:_ = phases
-      amps = map (runWithSuspend program) $ map (:[]) phases
+  let amps = map (runWithSuspend program) $ map (:[]) phases
       runCycle :: [IntermediateState] -> Input -> [IntermediateState]
       runCycle (ampA:ampB:ampC:ampD:ampE:_) inputA =
-        let runAmp amp input = (resume $ fromLeft (error "Amp A not suspended") $ istate amp) input
+        let runAmp name amp input = (resume $ fromLeft (error ("Amp " ++ name ++ " not suspended")) $ istate amp) input
             getOutput amp = take 1 $ either currentOutput id $ istate amp
-            ampA' = runAmp ampA inputA
-            ampB' = runAmp ampB $ getOutput ampA'
-            ampC' = runAmp ampC $ getOutput ampB'
-            ampD' = runAmp ampD $ getOutput ampC'
-            ampE' = runAmp ampE $ getOutput ampD'
+            ampA' = runAmp "A" ampA inputA
+            ampB' = runAmp "B" ampB $ getOutput ampA'
+            ampC' = runAmp "C" ampC $ getOutput ampB'
+            ampD' = runAmp "D" ampD $ getOutput ampC'
+            ampE' = runAmp "E" ampE $ getOutput ampD'
             amps' = ampA':ampB':ampC':ampD':ampE':[]
         in if isRight $ istate ampE' then amps' else runCycle amps' $ getOutput ampE'
       (_:_:_:_:stateE:_) = runCycle amps [0]
-  in head $ fromRight (error "Program not completed") $ istate stateE
+      finalOutputE = head $ fromRight (error "Program not completed") $ istate stateE
+  in finalOutputE
 
 solve = do
-  program <- V.fromList <$>
-             resultOrError <$> parseCommaSeparated parseInt <$>
-             readFile "../input/day07.txt"
+  program <- readProgram <$> readFile "../input/day07.txt"
   putStrLn "Part 1:"
   print $ runAmplifierPermutations program
   putStrLn "Part 2:"
