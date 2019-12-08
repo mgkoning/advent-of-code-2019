@@ -23,6 +23,7 @@ dependencies:
 - text
 - parsec
 - unordered-containers
+- split
 
 library:
   source-dirs: src
