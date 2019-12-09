@@ -6,7 +6,7 @@ solve = do
   program <- readProgram <$> readFile "../input/day05.txt"
   let output1 = runProgram program [1]
   putStrLn "Part 1:"
-  print $ head output1
+  print $ last output1
   let output2 = runProgram program [5]
   putStrLn "Part 2:"
-  print $ head output2
+  print $ last output2
