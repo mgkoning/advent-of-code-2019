@@ -14,7 +14,7 @@ type Program = IntMap Int
 type Input = [Int]
 type Output = [Int]
 
-data State = State { input :: Input, program :: Program, ip :: Int, relBase :: Int }
+data State = State { input :: Input, program :: Program, ip :: Int, relBase :: Int } deriving (Show)
 
 readProgram :: String -> Program
 readProgram = M.fromList . zip [0..] . resultOrError . (parseCommaSeparated parseInt)
