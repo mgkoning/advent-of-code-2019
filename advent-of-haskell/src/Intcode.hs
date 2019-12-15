@@ -3,6 +3,7 @@
 module Intcode (
   readProgram, runSimple, memSet, memGet,
   Program, Input, Output, runProgram,
+  doRunProgram, State(..)
 ) where
 
 import qualified Data.Vector.Unboxed as V
