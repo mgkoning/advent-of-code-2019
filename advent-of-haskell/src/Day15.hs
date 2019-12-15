@@ -1,6 +1,7 @@
 module Day15 (solve) where
 
 import Intcode
+import Printing
 import Data.Maybe (isNothing, fromJust)
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as M
@@ -53,14 +54,7 @@ solve = do
   print $ fillWithOxygen builtMap oxygenUnitLocation
 
 {- Just for fun -}
-printMap grid =   
-  let keys = M.keys grid
-      minX = minimum $ map fst keys
-      maxX = maximum $ map fst keys
-      minY = minimum $ map snd keys
-      maxY = maximum $ map snd keys
-      getTile t = case t of 0 -> '#'
-                            1 -> '.'
-                            2 -> '@'
-      tiles = unlines $ [[getTile (M.lookupDefault 0 (x,y) grid) | x <- [minX..maxX]] | y <- [minY..maxY]]
-  in tiles
+printMap grid = printGrid grid getTile 0
+  where getTile t = case t of 0 -> '#'
+                              1 -> '.'
+                              2 -> '@'

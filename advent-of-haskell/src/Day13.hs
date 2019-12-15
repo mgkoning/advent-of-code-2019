@@ -5,6 +5,7 @@ import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as M
 import Data.List.Split (chunksOf)
 import Text.Printf (printf)
+import Printing (printGrid)
 
 readOutputTriple [x,y,t] = ((x,y), t)
 readOutputTriple _ = error "not three outputs"
@@ -17,11 +18,8 @@ toScreen output =
 
 paintScreen :: HashMap (Int, Int) Int -> String
 paintScreen grid =
-  let keys = M.keys grid
-      maxX = maximum $ map fst keys
-      maxY = maximum $ map snd keys
-      score = printf "[Score]%33d\n" (M.lookupDefault 0 (-1,0) grid)
-      tiles = unlines $ [[getTile (M.lookupDefault 0 (x,y) grid) | x <- [0..maxX]] | y <- [0..maxY]]
+  let score = printf "[Score]%33d\n" (M.lookupDefault 0 (-1,0) grid)
+      tiles = printGrid (M.delete (-1, 0) grid) getTile 0
   in score ++ tiles
 
 getTile t = case t of

@@ -6,6 +6,7 @@ import Prelude hiding (Left, Right)
 import Intcode
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as M
+import Printing (printGrid)
 
 type Coord = (Int, Int)
 type Color = Int
@@ -26,9 +27,9 @@ getPos pos@(x,y) dir turn =
           (Down, TurnRight) -> Left
           (Left, TurnRight) -> Up
       newPosition = case newDirection of
-        Up -> (x, y+1)
+        Up -> (x, y-1)
         Left -> (x-1, y)
-        Down -> (x, y-1)
+        Down -> (x, y+1)
         Right -> (x+1, y)
   in (newPosition, newDirection)
 
@@ -54,22 +55,17 @@ robot brain initial =
       (lastState, _) = last robotStates
   in paintedPanels lastState
 
-getPicture :: HashMap Coord Int -> [[Char]]
+getPicture :: HashMap Coord Int -> String
 getPicture paintedPanels =
-  let coords = M.keys paintedPanels
-      maxX = maximum $ map fst coords
-      minX = minimum $ map fst coords
-      maxY = maximum $ map snd coords
-      minY = minimum $ map snd coords
-      toPixel c = if c == 0 then ' ' else '@'
-  in map (\y -> map (\x -> toPixel $ M.lookupDefault 0 (x, y) paintedPanels) [minX,minX+1..maxX]) [maxY,maxY-1..minY]
+  let toPixel c = if c == 0 then ' ' else '#'
+  in printGrid paintedPanels toPixel 0
 
 solve = do
   brain <- readProgram <$> readFile "../input/day11.txt"
   putStrLn "Part 1:"
   let part1 = robot brain 0
+  putStrLn $ getPicture part1
   print $ length $ M.keys part1
   putStrLn "Part 2:"
   let part2 = robot brain 1
-      picture = getPicture part2
-  putStrLn $ unlines picture
+  putStrLn $ getPicture part2
