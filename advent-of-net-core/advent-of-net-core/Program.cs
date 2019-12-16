@@ -5,15 +5,15 @@ using System.Threading.Tasks;
 namespace AdventOfCode2019 {
 
   class Program {
-    static Func<Task>[] solvers = new Func<Task>[] {
-      async () => await new Day01().solve(),
-      async () => await new Day02().solve()
+    static Dictionary<int, Func<Task>> solvers = new Dictionary<int, Func<Task>> {
+      [1] = async () => await new Day01().solve(),
+      [2] = async () => await new Day02().solve(),
+      [16] = async () => await new Day16().solve()
     };
 
     static async Task Main(string[] args) {
       var dayToRun = 0 < args.Length ? int.Parse(args[0]) : DateTime.Now.AddHours(-6).Day;
-      var solve = solvers.TryGetValue(dayToRun - 1);
-      if (solve == null) {
+      if (!solvers.TryGetValue(dayToRun, out var solve)) {
         Console.Error.WriteLine($"Day {dayToRun} not supported.");
         Environment.Exit(1);
       }

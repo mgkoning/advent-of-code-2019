@@ -1,6 +1,7 @@
 module Day16 (solve, test) where
 
 import Data.Char (digitToInt, intToDigit)
+import Data.List (iterate', foldl')
 
 parseSignal s = map digitToInt s
 
@@ -18,15 +19,19 @@ fft s =
   let matrix = getMatrix s
   in map intToDigit $ head $ drop 100 $ iterate (applyFftPhase matrix) s
 
+fft2 s = reverse $ fst $ foldl' accum ([], 0) s
+  where accum (l, s) d = let d' = (s + d) `mod` 10 in d' `seq` (d':l, d')
+
 solve = do
   input <- readFile "../input/day16.txt"
   let signal = parseSignal input
   putStrLn "Part 1:"
   putStrLn $ take 8 $ fft signal
-  --putStrLn "Part 2:"
-  --let offset = (read (take 7 input)) :: Int
-  --print offset
-  --putStrLn $ take 8 $ drop offset $ fft $ concat $ replicate 10000 signal
+  putStrLn "Part 2:"
+  let offset = (read (take 7 input)) :: Int
+  let input2 = concat $ replicate 10000 signal
+  let partToCalculate = reverse $ drop offset input2
+  putStrLn $ map intToDigit $ take 8 $ reverse $ head $ drop 100 $ iterate' fft2 $ partToCalculate
 
 test = do
   print $ take 5 $ iterate (applyFftPhase (getMatrix [1,2,3,4,5,6,7,8])) [1,2,3,4,5,6,7,8]
