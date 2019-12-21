@@ -56,31 +56,28 @@ isLegalMove cave keys next =
 
 ignoreDoors cave next = M.member next cave
 
-data State = State { sDist :: Int, sNext :: Int, sPos :: (Int, Int), sKeys :: [Char] } deriving (Show, Eq)
-instance Ord State where (<=) (State d1 n1 _ _) (State d2 n2 _ _) = if n1 == n2 then d1 <= d2 else n1 <= n2
+data State = State { sDist :: Int, sPos :: (Int, Int), sKeys :: [Char] } deriving (Show, Eq)
+instance Ord State where (<=) (State d1 _ k1) (State d2 _ k2) = if length k1 == length k2 then d1 <= d2 else length k2 <= length k1
 getKeys State{..} = sKeys
 getDist State{..} = sDist
 
 shortestVisitOrder :: HashMap (Int, Int) Object -> (Int, Int) -> [((Int, Int), Object)] -> Maybe State
-shortestVisitOrder cave entrance targets = shortestVisitOrder' (S.singleton (State 0 0 entrance [])) S.empty Nothing
+shortestVisitOrder cave entrance targets = shortestVisitOrder' (S.singleton (State 0 entrance [])) S.empty Nothing
   where
-    -- distancesFromKeys = let keys = map fst targets in M.fromList $ zip keys (map (visitAll (ignoreDoors cave)) keys)
     shortestVisitOrder' toVisit considered shortestSoFar = 
       let (best@State{..}, v) = S.deleteFindMin toVisit
           remaining = filter (not . (`elem` sKeys) . fromKey . snd) targets
           allVisited = visitAll (isLegalMove cave (map Key sKeys)) sPos
           visitedKeys = mapMaybe (\r@(p, o) -> fmap ((,) r) (M.lookup p allVisited)) remaining
-          -- nextClosest p k =
-          --   let r = filter (not . (`elem` k) . fromKey . snd) targets
-          --   in if null r then 100 else minimum $ map (((distancesFromKeys M.! p) M.!) . fst) r
-          newMoves = --filter (not . (`S.member` considered) . getKeys) $
-            filter (\k -> isNothing shortestSoFar || getDist k < (getDist $ fromJust shortestSoFar)) $
-            map (\((p, o), dist) -> let newKeys = (fromKey o):sKeys in State (sDist + dist) (length targets - length newKeys) p newKeys) visitedKeys
+          newMoves = filter (not . (`S.member` considered) . getKeys) $
+            map (\((p, o), dist) -> let newKeys = (fromKey o):sKeys in State (sDist + dist) p newKeys) visitedKeys
+          tooLong = case shortestSoFar of Nothing -> False; Just x -> (getDist x) < sDist
       in
         if S.null toVisit then shortestSoFar
+        else if tooLong then shortestVisitOrder' v considered shortestSoFar
         else if null remaining then
           let s' = case shortestSoFar of Nothing -> Just best; Just x -> Just (min x best)
-          in traceShow s' $ shortestVisitOrder' (S.filter ((<= (getDist (fromJust s'))) . getDist) v) considered s'
+          in traceShow s' $ shortestVisitOrder' v considered s'
         else shortestVisitOrder' (foldr S.insert v newMoves) (foldr S.insert considered (map getKeys newMoves)) shortestSoFar
 
 getAllKeys cave =
