@@ -1,13 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
-module Day18 (solve, test) where
+module Day18 (solve, test, solveP2, testP2) where
 
 import qualified Data.Map.Strict as M
 import           Data.Map.Strict (Map)
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Data.Char (isLower, isUpper, toUpper, toLower)
-import           Data.List (minimumBy)
+import           Data.List (minimumBy, (\\))
 import           Data.Ord (comparing)
+import           Data.Maybe (mapMaybe)
 
 data Object = Entrance | Key Char | Door Char | Wall | Open deriving (Show, Eq)
 fromChar :: Char -> Object
@@ -73,7 +74,7 @@ getAllKeys cave =
       getKeyDistanceMap from =
         let allDistances = visitAll (isLegalMove cave) from
             otherKeys = filter ((/=from) . fst) keys
-        in  M.fromList $ zip (map (fromKey . snd) otherKeys) $ map (allDistances M.!) (map fst otherKeys)
+        in  M.fromList $ map (\(p, k) -> (fromKey k, allDistances M.! p)) otherKeys
       reachable haveKeys (_, required) = S.null $ required S.\\ haveKeys
       possibleStarts = S.fromList $ M.elems $ M.mapWithKey (\k (d, _) -> State d k (S.singleton k)) $ M.filter (reachable S.empty) $ entranceToKeys
       findBestPath toVisit bestPaths = 
@@ -93,11 +94,49 @@ getAllKeys cave =
                 else findBestPath toVisit' bestPaths'
   in findBestPath possibleStarts M.empty
 
+data State2 = State2 { bPos :: Coord, bDist :: Int, bKeys :: [Char] } deriving (Eq, Show)
+instance Ord State2 where (<=) (State2 _ d1 _) (State2 _ d2 _) = d1 <= d2
+
+part2 cave =
+  let entrances = M.keys $ M.filter (==Entrance) cave
+      keys = M.toList $ M.filter isKey cave
+      keyPosMap = M.fromList $ map (\(p, k) -> (fromKey k, p)) keys
+      allKeys = map (fromKey . snd) keys
+      keyCount = length allKeys
+      getKeyDistanceMap from =
+        let allDistances = visitAll (isLegalMove cave) from
+            otherKeys = filter ((/=from) . fst) keys
+        in  M.fromList $ mapMaybe (\(p, k) -> fmap (\d -> (fromKey k, d)) $ M.lookup p allDistances) otherKeys
+      entrancesToKeys = M.fromList $ zip entrances $ map getKeyDistanceMap entrances
+      keysToOtherKeys = let keyPositions = map fst keys
+                        in M.fromList $ zip keyPositions $ map getKeyDistanceMap keyPositions
+      allDistanceMaps = M.union keysToOtherKeys entrancesToKeys
+      reachablePerKey = map (M.keys) $ M.elems entrancesToKeys
+      entrancesAndTargets = zip entrances reachablePerKey
+      collectAll start targets = collectAll' (S.singleton (State2 start 0 [])) S.empty
+        where collectAll' toVisit visited =
+                let (best@State2{..}, v) = S.deleteFindMin toVisit
+                    remainingKeys = targets \\ bKeys
+                    distancesFromHere = allDistanceMaps M.! bPos
+                    possibleMoves = 
+                      filter (\State2{..} -> not $ S.member (bPos, bKeys) visited) $
+                      map (\k -> State2 (keyPosMap M.! k) (bDist + (fst $ distancesFromHere M.! k)) (k:bKeys)) remainingKeys
+                in if null remainingKeys then bDist
+                   else collectAll' (foldr S.insert v possibleMoves) (S.insert (bPos, bKeys) visited)
+      steps = map (uncurry collectAll) entrancesAndTargets
+  in (steps, sum steps)
+
 solve = do
   cave <- readCave <$> readFile "../input/day18.txt"
   putStrLn "Part 1:"
   let order = getAllKeys cave
   print $ snd order
+  solveP2
+
+solveP2 = do
+  cave2 <- readCave <$> readFile "../input/day18-2.txt"
+  putStrLn "Part 2:"
+  print $ part2 cave2
 
 test = do
   putStrLn "smallExample1:"
@@ -116,3 +155,15 @@ largeExample1 = "########################\n#f.D.E.e.C.b.A.@.a.B.c.#\n###########
 largeExample2 = "########################\n#...............b.C.D.f#\n#.######################\n#.....@.a.B.c.d.A.e.F.g#\n########################"
 largeExample3 = "#################\n#i.G..c...e..H.p#\n########.########\n#j.A..b...f..D.o#\n########@########\n#k.E..a...g..B.n#\n########.########\n#l.F..d...h..C.m#\n#################"
 largeExample4 = "########################\n#@..............ac.GI.b#\n###d#e#f################\n###A#B#C################\n###g#h#i################\n########################"
+
+testP2 = do
+  putStrLn "Example 1:"
+  print $ part2 (readCave example1P2)
+  putStrLn "Example 2:"
+  print $ part2 (readCave example2P2)
+  putStrLn "Example 3:"
+  print $ part2 (readCave example3P2)
+
+example1P2 = "#######\n#a.#Cd#\n##@#@##\n#######\n##@#@##\n#cB#.b#\n#######"
+example2P2 = "###############\n#d.ABC.#.....a#\n######@#@######\n###############\n######@#@######\n#b.....#.....c#\n###############"
+example3P2 = "#############\n#DcBa.#.GhKl#\n#.###@#@#I###\n#e#d#####j#k#\n###C#@#@###J#\n#fEbA.#.FgHi#\n#############"
