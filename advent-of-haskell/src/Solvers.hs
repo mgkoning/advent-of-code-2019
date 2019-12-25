@@ -25,6 +25,7 @@ import Day21
 import Day22
 import Day23
 import Day24
+import Day25
 
 solvers :: V.Vector (IO ())
 solvers = V.fromList [
@@ -32,7 +33,7 @@ solvers = V.fromList [
   Day06.solve, Day07.solve, Day08.solve, Day09.solve, Day10.solve,
   Day11.solve, Day12.solve, Day13.solve, Day14.solve, Day15.solve,
   Day16.solve, Day17.solve, Day18.solve, Day19.solve, Day20.solve,
-  Day21.solve, Day22.solve, Day23.solve, Day24.solve]
+  Day21.solve, Day22.solve, Day23.solve, Day24.solve, Day25.solve]
 
 getSolver :: Int -> Maybe (IO ())
 getSolver day = solvers V.!? (day - 1)
