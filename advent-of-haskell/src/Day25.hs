@@ -10,16 +10,16 @@ solve = do
   putStrLn "Part 1:"
   let initialState = State [] adventure 0 0
   loop initialState
-  putStrLn "Bye!"
+  putStrLn "\nThanks for playing. Bye!"
 
 loop :: State -> IO ()
 loop state = do
   let (say, state', continue) = readToPrompt state
   putStrLn say
-  when continue $
-    do input <- getLine
-       when (input /= ":q") $
-         do loop state' { input = map ord (input ++ "\n") }
+  when continue $ do
+    input <- getLine
+    when (input /= ":q") 
+      (do loop state' { input = map ord (input ++ "\n") })
 
 readToPrompt s = go s []
   where
